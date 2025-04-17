@@ -1,1 +1,1 @@
-# professor-bot
+discordに招待して!detailと唱えると直前の投稿を詳細に説明してくれます。
