@@ -74,7 +74,7 @@ async function handleQuoteCommand(message) {
     });
 
     const quote = response.choices[0].message.content.trim();
-    await reply.edit(`📜 **Professor曰く：** ${quote}`);
+    await reply.edit(`${quote}`);
 
   } catch (error) {
     console.error("❌ 名言生成エラー:", error);
@@ -126,7 +126,7 @@ async function sendMorningMessage() {
     });
 
     const morningMessage = response.choices[0].message.content.trim();
-    await channel.send(`🌞 ${morningMessage}`);
+    await channel.send(` ${morningMessage}`);
     console.log("✅ 朝の一言を送信しました。");
   } catch (error) {
     console.error("❌ 朝の一言生成エラー:", error);
@@ -228,7 +228,7 @@ client.on('messageCreate', async (message) => {
         });
 
         const answer = response.choices[0].message.content.trim();
-        await reply.edit(`👴 **Professorの答え：** ${answer}`);
+        await reply.edit(`${answer}`);
 
       } catch (error) {
         console.error("❌ 珍質問回答エラー:", error);
