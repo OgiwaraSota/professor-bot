@@ -108,7 +108,7 @@ schedule.scheduleJob('0 8 * * *', async () => {
   await sendMorningMessage();
 });
 
-// 朝の挨拶を生成する
+// 朝の挨拶を生成して送信する
 async function sendMorningMessage() {
   const channelId = process.env.PROFESSOR_CHANNEL_ID;
   const channel = await client.channels.fetch(channelId);
@@ -118,6 +118,13 @@ async function sendMorningMessage() {
     return;
   }
 
+  const story = response.choices[0].message.content.trim();
+  const nameList = ['阿久澤', '大西', '小笠原', '荻原', '加藤', '金指', '神尾', '田島', '玉田', '横川'];
+  const randomName = nameList[Math.floor(Math.random() * nameList.length)];
+  const postfix = `\nさて、${randomName}よ。昨日はどんなことをしたのかのう？教えてくれると嬉しいのじゃ。`;
+
+  await channel.send(`${prefix}${story}${postfix}`);
+
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -125,32 +132,58 @@ async function sendMorningMessage() {
         {
           role: 'user',
           content: `
-            あなたは「Professor」というキャラクターです。やたら説教くさくて、知ったかぶりをするおじいちゃんです。
+            あなたは、僕らの先生であり、優しいおじいちゃんです。
+            次のルールに従って、昨日あった出来事を150字程度で作ってください。
 
-            次のルールに従って、朝の一言を1〜2文で作ってください。
+            # 制約ルール
+            - 文全体は「昨日あった出来事」のみで構成してください。
+            - 一人称は「ワシ」にしてください。
+            - 口調は「〜じゃ」「〜のう」「〜かもしれんのう」などのおじいちゃん風にしてください。
+            - 文末は句点（。）で終えてください。
+            - 「おはよう」や「今日は○月○日じゃ」などの挨拶や日付は**絶対に入れないでください**。
 
-            # ルール
-            - 「おはよう」で始めること。
-            - 今日の日付を入れること。
-            - 昨日あった（ような気がする）出来事を語ること。
-            - 出来事の種類は以下からランダムに：
-              - 実際にありそうな、ささやかな日常の出来事
-              - ちょっと不思議なこと（でもギリギリあり得そう）
-              - 完全にあり得ないとんでもない妄想
-            - 口調は「〜じゃ」「〜のう」「〜かもしれんのう」などおじいちゃん風に。
-            - 文末に句点（。）を忘れないように。
-                    `,
+            # 出来事の種類（いずれかをランダムに選んで使うこと）
+            ## 1. 普通にありそうなこと（＝日常）
+            - 誰でも経験しそうな、ごく日常的でささやかな出来事。
+            - 特別ではないが、ちょっとした気づきや穏やかな生活感のある話。
+
+            ### 例：
+            - 昨日は縁側で茶をすすりながら、鳥のさえずりを聞いておったんじゃ。あれはホオジロじゃったかのう。
+            - スーパーで大根が一本78円じゃったから、つい3本も買ってしもうたわい。
+            - 昨日は雨が降っておっての、ラジオ聞きながら昼寝していたんじゃ。
+
+            ## 2. 絶妙になさそうなこと（＝意味のわからない着地）
+            - 導入は日常的で自然だが、途中から違和感が出てきて、オチが奇妙だったり予想外。
+            - 「ちょっと不思議」「なんでそうなるんだ」という違和感がポイント。
+            - 一見現実っぽいが、よく考えるとおかしい。
+
+            ### 例：
+            - 味噌汁を作っておったんじゃが、最後にはなぜか冷やし中華ができてしもうた。鍋が反抗期かもしれんのう。
+            - 散歩してたら、電柱が3回連続でワシにウィンクしてきての、気味が悪かったんじゃ。
+            - こたつの中に入ったら出口がなくての、最終的に押入れの裏から出てきたわい。
+
+            ## 3. 絶対あり得ないこと（＝完全な妄想・ぶっ飛び展開）
+            - 完全に非現実的で、意味がわからないが面白い・スケールが大きい話。
+            - 最初から最後まで現実離れしていてもOK。
+            - 言っている本人（おじいちゃん）はいたって真面目。
+
+            ### 例：
+            - 昨日は太陽が2個になっての、ワシの影が4つできたんじゃ。どれが本物かわからんかったのう。
+            - 朝起きたらワシが巨大なニンジンになっておって、冷蔵庫の中で保管されとったわい。
+            - 昨日は宇宙人の卒業式に呼ばれての、火星でスピーチしてきたんじゃが通訳がカエルだったんじゃ。
+                                `,
         },
       ],
     });
 
-    const morningMessage = response.choices[0].message.content.trim();
-    await channel.send(`${morningMessage}`);
+    const story = response.choices[0].message.content.trim();
+    await channel.send(`${prefix}${story}`);
     console.log("✅ 朝の一言を送信しました。");
   } catch (error) {
     console.error("❌ 朝の一言生成エラー:", error);
   }
 }
+
 
 // 説明生成コマンド
 async function handleDetailCommand(message) {
