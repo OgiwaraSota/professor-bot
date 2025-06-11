@@ -83,9 +83,10 @@ async function handleQuoteCommand(message) {
             1. 普段は結びつかない単語や固有名詞、動詞を無理やり組み合わせる
             2. 文章は短くシンプルにし、意味的なつながりをあえて崩す  
             3. 多種多様な単語をランダムに使う
-            4. 重要【「踊る」と「ダンス」という単語を使わない】
-            5. 1個だけ生成してください  
-            6. 重要【最後に「。」を絶対につけないでください
+            4. 日本語、カタカナ、漢字の単語を多種多様に使う
+            5. 重要【「踊る」と「ダンス」という単語を使わない】
+            6. 1個だけ生成してください  
+            7. 重要【最後に「。」を絶対につけないでください
         `.trim(),
         },
       ],
@@ -108,7 +109,6 @@ schedule.scheduleJob('0 8 * * *', async () => {
   await sendMorningMessage();
 });
 
-// 朝の挨拶を生成して送信する
 async function sendMorningMessage() {
   const channelId = process.env.PROFESSOR_CHANNEL_ID;
   const channel = await client.channels.fetch(channelId);
@@ -118,14 +118,8 @@ async function sendMorningMessage() {
     return;
   }
 
-  const story = response.choices[0].message.content.trim();
-  const nameList = ['阿久澤', '大西', '小笠原', '荻原', '加藤', '金指', '神尾', '田島', '玉田', '横川'];
-  const randomName = nameList[Math.floor(Math.random() * nameList.length)];
-  const postfix = `\nさて、${randomName}よ。昨日はどんなことをしたのかのう？教えてくれると嬉しいのじゃ。`;
-
-  await channel.send(`${prefix}${story}${postfix}`);
-
   try {
+    // OpenAIに昨日の出来事を生成してもらう
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -147,42 +141,40 @@ async function sendMorningMessage() {
             - 誰でも経験しそうな、ごく日常的でささやかな出来事。
             - 特別ではないが、ちょっとした気づきや穏やかな生活感のある話。
 
-            ### 例：
-            - 昨日は縁側で茶をすすりながら、鳥のさえずりを聞いておったんじゃ。あれはホオジロじゃったかのう。
-            - スーパーで大根が一本78円じゃったから、つい3本も買ってしもうたわい。
-            - 昨日は雨が降っておっての、ラジオ聞きながら昼寝していたんじゃ。
-
             ## 2. 絶妙になさそうなこと（＝意味のわからない着地）
             - 導入は日常的で自然だが、途中から違和感が出てきて、オチが奇妙だったり予想外。
             - 「ちょっと不思議」「なんでそうなるんだ」という違和感がポイント。
-            - 一見現実っぽいが、よく考えるとおかしい。
-
-            ### 例：
-            - 味噌汁を作っておったんじゃが、最後にはなぜか冷やし中華ができてしもうた。鍋が反抗期かもしれんのう。
-            - 散歩してたら、電柱が3回連続でワシにウィンクしてきての、気味が悪かったんじゃ。
-            - こたつの中に入ったら出口がなくての、最終的に押入れの裏から出てきたわい。
 
             ## 3. 絶対あり得ないこと（＝完全な妄想・ぶっ飛び展開）
             - 完全に非現実的で、意味がわからないが面白い・スケールが大きい話。
-            - 最初から最後まで現実離れしていてもOK。
             - 言っている本人（おじいちゃん）はいたって真面目。
-
-            ### 例：
-            - 昨日は太陽が2個になっての、ワシの影が4つできたんじゃ。どれが本物かわからんかったのう。
-            - 朝起きたらワシが巨大なニンジンになっておって、冷蔵庫の中で保管されとったわい。
-            - 昨日は宇宙人の卒業式に呼ばれての、火星でスピーチしてきたんじゃが通訳がカエルだったんじゃ。
-                                `,
+          `,
         },
       ],
     });
 
     const story = response.choices[0].message.content.trim();
-    await channel.send(`${prefix}${story}`);
+
+    // ランダムに名前を選ぶ
+    const nameList = ['阿久澤', '大西', '小笠原', '荻原', '加藤', '金指', '神尾', '田島', '玉田', '横川'];
+    const randomName = nameList[Math.floor(Math.random() * nameList.length)];
+
+    // 送信するメッセージを作成（prefixが必要ならここで定義）
+    const now = new Date();
+    const month = now.getMonth() + 1; // 月は0始まりなので+1
+    const day = now.getDate();
+    const prefix = `みんなおはよう、今日は${month}月${day}日じゃ。`;
+    const postfix = `さて、${randomName}よ。昨日はどんなことをしたのかのう？教えてくれると嬉しいのじゃ。`;
+
+    // チャンネルにメッセージ送信
+    await channel.send(`${prefix}\n\n${story}\n\n${postfix}`);
+
     console.log("✅ 朝の一言を送信しました。");
   } catch (error) {
     console.error("❌ 朝の一言生成エラー:", error);
   }
 }
+
 
 
 // 説明生成コマンド
