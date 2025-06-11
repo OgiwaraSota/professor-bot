@@ -104,8 +104,8 @@ async function handleQuoteCommand(message) {
 
 const schedule = require('node-schedule');
 
-// 毎朝8時に実行
-schedule.scheduleJob('0 8 * * *', async () => {
+// 毎朝9時に実行
+schedule.scheduleJob('0 0 * * *', 'Asia/Tokyo', async () => {
   await sendMorningMessage();
 });
 
@@ -127,7 +127,7 @@ async function sendMorningMessage() {
           role: 'user',
           content: `
             あなたは、僕らの先生であり、優しいおじいちゃんです。
-            次のルールに従って、昨日あった出来事を150字程度で作ってください。
+            次のルールに従って、昨日あった出来事を80字程度で作ってください。
 
             # 制約ルール
             - 文全体は「昨日あった出来事」のみで構成してください。
