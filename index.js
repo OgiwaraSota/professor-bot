@@ -105,7 +105,7 @@ async function handleQuoteCommand(message) {
 const schedule = require('node-schedule');
 
 // 毎朝9時に実行
-schedule.scheduleJob('0 0 * * *', 'Asia/Tokyo', async () => {
+schedule.scheduleJob('0 0 * * *', async () => {
   await sendMorningMessage();
 });
 
