@@ -131,7 +131,7 @@ async function sendMorningMessage() {
             以下の条件に従って文章を出力してください：
 
             - 出力は100文字程度に収めること。
-            - 内容は自然科学、人文科学、社会科学、歴史、哲学、言語学、心理学、宇宙、生物、数学など幅広い学問分野から選ぶこと。
+            - 内容は自然科学、人文学、社会科学、歴史、哲学、言語学、心理学、宇宙、生物、数学など幅広い学問分野から選ぶこと。
             - 出力内容は事実に基づき、必ず正確であること（ファクトチェックを行うこと）。
             - 専門外の大学生が理解できるように説明すること。
             - 架空の情報、創作、ジョーク、憶測、未確認情報は絶対に含めないこと。
@@ -148,14 +148,20 @@ async function sendMorningMessage() {
 
     // 送信するメッセージを作成（prefixが必要ならここで定義）
     const now = new Date();
-    const year = now.getFullYear()
+    const year = now.getFullYear();
     const month = now.getMonth() + 1; // 月は0始まりなので+1
     const day = now.getDate();
-    const prefix = `みんなおはよう、今日は${year}年${month}月${day}日じゃ。`;
+
+    // 曜日配列
+    const weekdays = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
+    const weekday = weekdays[now.getDay()];
+
+    const prefix = `みんなおはよう、今日は${year}年${month}月${day}日（${weekday}）じゃ。`;
     const postfix = "今日も一日元気に過ごすのじゃ〜。"
 
     // チャンネルにメッセージ送信
     await channel.send(`${prefix}\n\n${story}\n\n${postfix}`);
+
 
     console.log("✅ 朝の一言を送信しました。");
   } catch (error) {
